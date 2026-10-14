@@ -1,0 +1,24 @@
+button {
+
+  font-family: inherit;
+  padding: 0.5rem 1rem;
+  width: 100%;
+  border: 1px solid currentColor;
+  background: white;
+  font-size: inherit;
+  &.default {
+    color: var(--gray-900);
+    &:hover {
+      background-color: var(--gray-900);
+      color: white;
+      border-color: var(--gray-900);
+    }
+  }
+  &.alert {
+    color: #aa0000;
+    &:hover {
+      background: #aa0000;
+      color: white;
+    }
+  }
+}

@@ -1,0 +1,28 @@
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --primary-color: rgb(0, 123, 255); /* #007bff */
+  --secondary-color: rgb(108, 117, 125); /* #6c757d */
+  --success-color: rgb(40, 167, 69); /* #28a745 */
+  --danger-color: rgb(220, 53, 69); /* #dc3545 */
+  --warning-color: rgb(255, 193, 7); /* #ffc107 */
+  --alert-color: rgb(217, 119, 6); /* #d97706 */
+  --info-color: rgb(23, 162, 184); /* #17a2b8 */
+  --light-color: rgb(248, 249, 250); /* #f8f9fa */
+  --dark-color: rgb(52, 58, 64); /* #343a40 */
+
+  --gray-50: rgb(248, 248, 250); /* #f1f3f5 */
+  --gray-100: rgb(241, 243, 245); /* #f1f3f5 */
+  --gray-200: rgb(233, 236, 239); /* #e9ecef */
+  --gray-300: rgb(222, 226, 230); /* #dee2e6 */
+  --gray-400: rgb(206, 212, 218); /* #ced4da */
+  --gray-500: rgb(173, 181, 189); /* #adb5bd */
+  --gray-600: rgb(108, 117, 125); /* #6c757d */
+  --gray-700: rgb(73, 80, 87); /* #495057 */
+  --gray-800: rgb(52, 58, 64); /* #343a40 */
+  --gray-900: rgb(33, 37, 41); /* #212529 */
+
+  --day-bg: rgb(224, 152, 59);
+  --night-bg: rgb(90, 23, 177);
+}
