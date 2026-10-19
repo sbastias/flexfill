@@ -62,7 +62,7 @@ let widths = computed(() => {
     gap: 0.1em;
     align-items: center;
     justify-content: flex-start;
-    font-size: .9rem;
+    font-size: .9em;
     color: white;
     line-height: 1;
 

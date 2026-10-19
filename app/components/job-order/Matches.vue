@@ -45,7 +45,7 @@ function cloneMatch(originalMatch) {
         :clone="cloneMatch"
       >
         <template #item="{element: match}">
-          <JobOrderMatch :key="match.Id" :match="match" class="job-order-match-container" />
+          <JobOrderMatchItem :key="match.Id" :match="match" class="job-order-match-container" />
         </template>
       </vuedraggable>
     </div>

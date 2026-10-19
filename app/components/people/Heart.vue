@@ -36,7 +36,7 @@ const emits = defineEmits(['toggle'])
 .heart {
 //aspect-ratio: 9.5106/10.4327;
 line-height: 0;
-width: .9rem;
+width: .9em;
 height: calc(.9rem * 9.5106/10.4327);
 display: inline-block;
 cursor: pointer;

@@ -6,6 +6,14 @@ const {activeStartDay, activeEndDay} = useCalendar()
 
 
 const props = defineProps({
+  fromDate: {
+    type: String,
+    required: false
+  },
+  toDate: {
+    type: String,
+    required: false
+  },
   items: {
     type: Array,
     required: true,
@@ -13,7 +21,7 @@ const props = defineProps({
   }
 })
 
-const emits = defineEmits(['update:day'])
+const emits = defineEmits(['update:day', 'edit-placement'])
 
 const currentDays = computed(() => {
   const days = []
@@ -66,12 +74,13 @@ const currentWeeks = computed(() => {
 
 // Returns array of tasks matching a specific day's date string
 function getItemsForDay(date) {
-  return props.items.filter(item => date >= new Date(item.AVTRRT__Start_Date__c) && date <= new Date(item.AVTRRT__End_Date__c))
+  return props.items.filter(item => new Date(item.AVTRRT__Start_Date__c) <= date && new Date(item.AVTRRT__End_Date__c) >= date)
 }
 
 // Handle task dropped onto a day cell
 function handleDrop(day, event) {
   if (event.added) {
+
     emits('update:day', {
       day,
       event
@@ -82,39 +91,82 @@ function handleDrop(day, event) {
     //   newDate: dayDateStr
     // })
   }
+
+  // else {
+  //   // Handle case where task was removed from a day cell if needed
+  //   console.log('Task removed from day cell:', day, event)
+  // }
 }
+
+const inRange = (day) => {
+  const from = new Date(props.fromDate)
+  const to = props.toDate && new Date(props.toDate)
+  return day >= from && (!to || day <= to)
+}
+
+const calendarBody = ref(null)
+const calendarBodyShim = ref(null)
+
+const matchShimSize = () => {
+  calendarBodyShim.value.style.height = `${calendarBody.value.offsetHeight}px`
+}
+
+watch(calendarBody, newVal => {
+  if (newVal) {
+    calendarBody.value.addEventListener('resize', (e) => {
+      matchShimSize()
+    })
+  }
+})
+
+onMounted(() => {
+  matchShimSize()
+})
 </script>
 
 <template>
 
 <div class="ui-calendar-wrapper">
 
-  <div class="calendar-body" item-key="date" :list="currentDays">
+  <div class="calendar-body" item-key="date" :list="currentDays" ref="calendarBody">
       
       <template v-for="(week) in currentWeeks">
         
         <div v-for="(day, dIdx) in week" :key="dIdx">
-          <div class="day-cell" v-if="day" :data-day="day.getUTCDate()">
+          <div class="day-cell" v-if="day" :data-day="day.getUTCDate()" :class="{ 'out-of-range': !inRange(day) }">
+
+            <template v-if="inRange(day)">
             
-            <vuedraggable
-            :model-value="getItemsForDay(day)" 
-            group="calendar-orders"
-            item-key="id"
-            animation="200"
-            class="drag-area"
-            @change="(e) => handleDrop(day, e)"
-          >
-            <template #item="{ element }">
-              <div class="placement-card">
-                {{ element.AVTRRT__Contact_Candidate__r?.Name }}
-              </div>
+              <vuedraggable
+                :model-value="getItemsForDay(day)" 
+                :group="{ name: 'calendar-orders', pull: false, put: true }"
+                item-key="id"
+                animation="200"
+                class="drag-area"
+                @change="(e) => handleDrop(day, e)"
+                >
+                <template #item="{ element }">
+                  <div>
+                    <div 
+                      class="placement-card" 
+                      @click="emits('edit-placement', element)"
+                      :class="[element.state]">
+                      {{ element.fullName }}
+                    </div>
+                  </div>
+                </template>
+              </vuedraggable>
+
             </template>
-          </vuedraggable>
+
           </div>
         </div>
       </template>
   
     </div>
+
+    <div class="calendar-body-shim" ref="calendarBodyShim"></div>
+
 </div>
 </template>
 
@@ -149,22 +201,65 @@ function handleDrop(day, event) {
       color: var(--gray-400);
       font-size: 0.8rem;
     }
+    &.out-of-range {
+      background: var(--gray-100);
+      //linear gradient stripes for out-of-range days
+      background: repeating-linear-gradient(
+        45deg,
+        var(--gray-100),
+        var(--gray-100) 10px,
+        var(--gray-200) 10px,
+        var(--gray-200) 20px
+      );
+    }
 
     .placement-card {
       margin: .1rem;
       border-radius: 9999em;
-      background: var(--gray-400);
+      background: var(--gray-500);
       padding: .1rem .5rem;
       display: flex;
       justify-content: flex-start;
       color: white;
       font-size: 0.8rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: background 0.3s ease;
+
+      &.pending {
+        background: var(--yellow-400, rgb(227, 196, 0));
+      }
+      &.saving {
+        //animated linear gradient, to animate diagonal stripes for saving state
+        background: repeating-linear-gradient(
+          45deg,
+          var(--gray-600, rgb(59, 59, 69)),
+          var(--gray-600, rgb(59, 59, 69)) 10px,
+          var(--gray-200, rgb(144, 144, 144)) 10px,
+          var(--gray-200, rgb(144, 144, 144)) 20px,
+        );
+        //background-size: 20px 20px;
+        animation: diagonal-stripes .5s linear infinite;
+      }
+      &.saved {
+        background: var(--green-400, green);
+      }
     }
 
     &:hover {
       &:before {
         color: var(--gray-700);
       }
+    }
+  }
+
+  @keyframes diagonal-stripes {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 20px 0;
     }
   }
 

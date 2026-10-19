@@ -3,6 +3,7 @@ const { FLEXFILL_API_URL } = useRuntimeConfig().public
 const Toaster = useToaster()
 
 const {activeStartDay, activeEndDay} = useCalendar()
+const { Person } = usePerson()
 
 const editingOrder = ref(null)
 const selectedOrder = ref(null)
@@ -55,6 +56,21 @@ const currentOrders = computed(() => {
 
 })
 
+const addPlacementToOrder = (placement) => {
+
+  if (!selectedOrder.value) return
+  selectedOrder.value.placements = selectedOrder.value.placements || []
+  if (selectedOrder.value.placements.some(pl => pl.Id === placement.Id)) {
+    // delete the existing placement with the same Id
+    selectedOrder.value.placements = selectedOrder.value.placements.filter(pl => pl.Id !== placement.Id)
+  }
+  selectedOrder.value.placements.push(placement)
+
+}
+
+
+const matches = computed(() => selectedOrder.value?.AVTRRT__Job_Application__r?.records.map(record => new Person(record.AVTRRT__Contact_Candidate__r)) || []) 
+
 </script>
   
 <template>
@@ -77,7 +93,7 @@ const currentOrders = computed(() => {
 
       <div>
         <JobOrderMatches 
-        :matches="selectedOrder?.AVTRRT__Job_Application__r?.records" 
+        :matches="matches" 
         @update:matches="selectedOrder.AVTRRT__Job_Application__r.records = $event"
         @deselect-order="selectedOrder = null" />
       </div>
@@ -86,7 +102,7 @@ const currentOrders = computed(() => {
 
         <div style="height: 100%;">
           
-          <JobOrderCalendar :order="selectedOrder" />
+          <JobOrderCalendar :order="selectedOrder" @add-placement="(placement) => addPlacementToOrder(placement)" />
 
         </div>
 

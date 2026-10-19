@@ -1,7 +1,15 @@
 <script setup>
-const { accountOverlayVisible } = useUiControls();
+// const { accountOverlayVisible } = useUiControls();
 
 const authStore = useAuthStore();
+
+// const showDialog = () => {
+//   document.getElementById('account-dialog').showModal()
+// }
+
+// const hideDialog = () => {
+//   document.getElementById('account-dialog').close()
+// }
 </script>
 
 <template>
@@ -10,7 +18,7 @@ const authStore = useAuthStore();
     <!-- UiHeaderAccountPopover /> -->
     <UiHeaderAccountHover />
 
-    <button id="account-details-button" popovertarget="account-popover">
+    <button id="account-details-button">
       <div>
         <h3>{{ authStore.fullName }}</h3>
         <div>{{ authStore.title }} / {{ authStore.department }}</div>
