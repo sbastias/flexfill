@@ -37,7 +37,7 @@ const emits = defineEmits(['toggle'])
 //aspect-ratio: 9.5106/10.4327;
 line-height: 0;
 width: .9em;
-height: calc(.9rem * 9.5106/10.4327);
+height: calc(.9em * 9.5106/10.4327);
 display: inline-block;
 cursor: pointer;
 .cls-1 {

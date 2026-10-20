@@ -13,8 +13,8 @@ const props = defineProps({
 
 <style lang="scss">
 .people-avatar {
-  width: 56px;
-  height: 56px;
+  width: 3em;
+  height: 3em;
   border-radius: 50%;
   background: rgb(229, 231, 235);
   border: 1.5px solid rgb(209, 213, 219);
@@ -24,8 +24,8 @@ const props = defineProps({
   flex-shrink: 0;
 
   svg {
-    width: 40px;
-    height: 40px;
+    width: 2.5em;
+    height: 2.5em;
   }
 }
 

@@ -16,7 +16,7 @@ const person = toRef(props, 'person')
 
     <div class="person-header-left">
       
-      <PeopleAvatar />
+      <PeopleAvatar style="font-size: 1.25rem;" />
       
       <div>
         <h4>{{ person.fullName }}</h4>

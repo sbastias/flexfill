@@ -4,6 +4,14 @@ const props = defineProps({
     type: Object,
     required: true,
     default: () => ({})
+  },
+  fromDate: {
+    type: String,
+    required: false
+  },
+  toDate: {
+    type: String,
+    required: false
   }
 })
 
@@ -47,6 +55,8 @@ const doSaveStuff = () => {
 <template>
   <dialog id="placement-dialog" ref="placementDialog" @close="() => emits('clear-pending')">
 
+    <UiMiniClose @click="() => placementDialog.close()" />
+
     <div>
       <h3>Rostering <span>{{ placement?.AVTRRT__Contact_Candidate__r?.Name || 'Unknown' }}</span></h3>
     </div>
@@ -56,12 +66,12 @@ const doSaveStuff = () => {
 
         <div>
           <label for="start-date">Placement Date</label>
-          <input type="date" id="start-date" v-model="placement.AVTRRT__Start_Date__c" />
+          <input type="date" id="start-date" v-model="placement.AVTRRT__Start_Date__c" :min="fromDate" />
         </div>
 
         <div>
           <label for="end-date">End Date</label>
-          <input type="date" id="end-date" v-model="placement.AVTRRT__End_Date__c" />
+          <input type="date" id="end-date" v-model="placement.AVTRRT__End_Date__c" :min="placement.AVTRRT__Start_Date__c" :max="toDate" :disabled="!placement.AVTRRT__Start_Date__c" />
         </div>
 
       </form>

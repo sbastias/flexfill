@@ -23,7 +23,6 @@ class Placement {
     return {
       Id: this.Id,
       AVTRRT__Contact_Candidate__c: this.AVTRRT__Contact_Candidate__c,
-      AVTRRT__Contact_Candidate__r: this.AVTRRT__Contact_Candidate__r,
       AVTRRT__Start_Date__c: this.AVTRRT__Start_Date__c,
       AVTRRT__End_Date__c: this.AVTRRT__End_Date__c,
       AVTRRT__Job__c: this.AVTRRT__Job__c,
@@ -32,6 +31,10 @@ class Placement {
 
   hasSFId () {
     return this.Id && !/^temp-id-/.test(this.Id)
+  }
+
+  get candidateName () {
+    return this.AVTRRT__Contact_Candidate__r?.Name || ''
   }
 }
 const {activeMonthName, goToNextMonth, goToPrevMonth, transitionName} = useCalendar()
@@ -70,11 +73,20 @@ const placements = computed(() => {
 
 const handleDropped = (payload) => {
 
+  console.log('Handling dropped payload:', payload)
+
+  console.log('Related to Job Order:', props.order)
+
   let droppedEl = payload.event.added.element
 
-  droppedEl.Id = null
   droppedEl.AVTRRT__Start_Date__c = payload.day.toISOString().substring(0, 10)
   droppedEl.AVTRRT__End_Date__c = payload.day.toISOString().substring(0, 10)
+
+  
+  droppedEl.AVTRRT__Contact_Candidate__c = droppedEl.Id // dropped candidate ID
+  droppedEl.AVTRRT__Contact_Candidate__r = {Name: [(droppedEl.FirstName || ''), (droppedEl.LastName || '')].join(' ')}
+  droppedEl.Id = null// new placement!
+  droppedEl.AVTRRT__Job__c = props.order.Id || null
 
   setPendingPlacement(droppedEl)
 
@@ -101,19 +113,21 @@ const setPendingPlacement = (placement) => {
 }
 
 const savePendingPlacement = () => {
-  console.log('Saving pending placement:', pendingPlacement.value)
 
+  console.log('Saving pending placement:', pendingPlacement.value)
   pendingPlacement.value.state = 'saving'
 
 
   setTimeout(() => {
+
     pendingPlacement.value.state = 'saved'
-    
     document.getElementById('placement-dialog')?.close()
 
     setTimeout(() => {
 
-      emits('add-placement', pendingPlacement.value.toSFObject())
+      
+      pendingPlacement.value.state = 'default'// unset saved class after a short delay
+      emits('add-placement', new Placement(pendingPlacement.value))
       pendingPlacement.value = null  
       
     }, 500)
@@ -133,6 +147,8 @@ const savePendingPlacement = () => {
     <JobOrderPlacementEditor
       v-if="pendingPlacement && pendingPlacement.state === 'pending'"
       :placement="pendingPlacement"
+      :from-date="order?.AVTRRT__Start_Date__c"
+      :to-date="order?.AVTRRT__End_Date__c"
       @clear-pending="pendingPlacement = null"
       @save="(placement) => savePendingPlacement(placement)"
     />
@@ -163,6 +179,7 @@ const savePendingPlacement = () => {
               :key="activeMonthName" 
               class="calendar-item"
               :from-date="order?.AVTRRT__Start_Date__c"
+              :to-date="order?.AVTRRT__End_Date__c"
               :items="placements"
               @update:day="payload => handleDropped(payload)"
               @edit-placement="placement => setPendingPlacement(placement)"

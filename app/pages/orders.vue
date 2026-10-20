@@ -43,7 +43,7 @@ const {data: orders, pending, error} = useFetch(`${FLEXFILL_API_URL}/job-order/o
 
 const currentOrders = computed(() => {
 
-  if (orders.value.length) {
+  if (orders.value?.length) {
     return orders.value.filter(order => {
       if (order.AVTRRT__End_Date__c) {
         return new Date(order.AVTRRT__End_Date__c) >= activeStartDay.value && new Date(order.AVTRRT__Start_Date__c) <= activeEndDay.value
@@ -56,20 +56,25 @@ const currentOrders = computed(() => {
 
 })
 
+
 const addPlacementToOrder = (placement) => {
 
   if (!selectedOrder.value) return
+
   selectedOrder.value.placements = selectedOrder.value.placements || []
   if (selectedOrder.value.placements.some(pl => pl.Id === placement.Id)) {
     // delete the existing placement with the same Id
     selectedOrder.value.placements = selectedOrder.value.placements.filter(pl => pl.Id !== placement.Id)
   }
+
   selectedOrder.value.placements.push(placement)
+
+  
 
 }
 
 
-const matches = computed(() => selectedOrder.value?.AVTRRT__Job_Application__r?.records.map(record => new Person(record.AVTRRT__Contact_Candidate__r)) || []) 
+const matches = computed(() => selectedOrder.value?.AVTRRT__Job_Application__r?.records.map(record => record.AVTRRT__Contact_Candidate__r && new Person(record.AVTRRT__Contact_Candidate__r)) || []) 
 
 </script>
   

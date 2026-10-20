@@ -15,7 +15,8 @@ const matches = toRef(props, 'matches')
 
 // Computed getter returns prop, setter emits updated array to parent
 const localMatches = computed({
-  get: () => props.matches,
+  // assign unique IDs to each match for draggable item-key
+  get: () => matches.value.filter(match => match?.Id).map(match => ({ ...match, draggableId: `event-${match.Id}-${Math.random()}` })),
   set: (newValue) => emits('update:matches', newValue)
 })
 
@@ -24,23 +25,21 @@ function cloneMatch(originalMatch) {
   return {
     ...originalMatch,
     // Assign a unique ID for the new calendar item so it doesn't conflict with the source candidate
-    id: `event-${originalMatch.Id}-${Date.now()}`,
-    // Set default/initial properties for the calendar slot
-    date: null 
+    draggableId: `event-${originalMatch.Id}-${Math.random()}`
   }
 }
 
 </script>
 <template>
-  <ul class="job-order-matches-list">
+  <section class="job-order-matches-list-container">
     <div class="job-order-matches-list-header">
       <span>Candidate List</span>
       <UiMiniClose @click="emits('deselectOrder')" />
     </div>
-    <div v-if="matches?.length">
+    <div v-if="matches?.length" class="the-list">
       <vuedraggable 
         v-model="localMatches" 
-        item-key="Id"
+        item-key="draggableId"
         :group="{ name: 'calendar-orders', pull: 'clone', put: false }"
         :clone="cloneMatch"
       >
@@ -52,11 +51,11 @@ function cloneMatch(originalMatch) {
     <div v-else>
       <p style="text-align: center; font-size: .8rem;">No matches found</p>
     </div>
-  </ul>
+  </section>
 </template>
 
 <style scoped lang="scss">
-  .job-order-matches-list {
+  .job-order-matches-list-container {
     width: 100%;
     display: block;
     margin: 0;

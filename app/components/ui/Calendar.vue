@@ -151,7 +151,7 @@ onMounted(() => {
                       class="placement-card" 
                       @click="emits('edit-placement', element)"
                       :class="[element.state]">
-                      {{ element.fullName }}
+                      {{ element.candidateName }}
                     </div>
                   </div>
                 </template>
