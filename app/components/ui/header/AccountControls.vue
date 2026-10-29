@@ -1,18 +1,28 @@
 <script setup>
 const authStore = useAuthStore()
+const { user, departments } = authStore
+const Router = useRouter()
+const doLogout = () => {
+  console.log('Logging out...')
+  authStore.reset()
+  Router.push('/login')
+}
 </script>
 
 <template>
 
   <div class="account-controls">
      <span class="avatar">
-      <img :src="authStore.logo" alt="Avatar" />
+      <img :src="user.logo" alt="Avatar" />
      </span>
      <div>
-        <h2>{{ authStore.fullName }}</h2>
-        <div class="title">Title: {{ authStore.title }}</div>
-        <div class="company">Company: {{ authStore.company }}</div>
-        <div class="site">Site: {{ authStore.site }}</div>
+        <h2>{{ user.firstName }} {{ user.lastName }}</h2>
+        <div class="title">Title: {{ user.title }}</div>
+        <div class="company">Company: {{ user.company }}</div>
+        <div class="site">Site: {{ user.site }}</div>
+     </div>
+     <div>
+      <a href="/logout" @click.prevent="doLogout">Logout</a>
      </div>
   </div>
 
@@ -23,6 +33,7 @@ const authStore = useAuthStore()
   width: max-content;
   min-width: 350px;
   font-size: .9rem;
+  z-index: 10000;
 
   h2 {
     font-size: 1.5rem;

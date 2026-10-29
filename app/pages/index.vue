@@ -20,7 +20,7 @@ onMounted(() => {
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
-  background: rgb(240, 240, 240);
+  background: var(--gray-bg);
   
 }
 </style>

@@ -1,0 +1,21 @@
+.hidden {
+  visibility: hidden;
+  width: 0;
+  height: 0;
+  overflow: clip;
+  opacity: 0;
+}
+
+.centered-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+.default-container {
+  padding: 1rem;
+  background: white;
+  border-radius: .5rem;
+  margin: 1.5rem 0;
+}

@@ -1,6 +1,8 @@
 <script setup>
 const { FLEXFILL_API_URL } = useRuntimeConfig().public
 const Toaster = useToaster()
+const AuthStore = useAuthStore()
+const { unauthorizedError } = useFFError()
 
 const {activeStartDay, activeEndDay} = useCalendar()
 const { Person } = usePerson()
@@ -31,7 +33,11 @@ const unsetEditingOrder = ($event) => {
   return $event.target.hidePopover()
 }
 
-const {data: orders, pending, error} = useFetch(`${FLEXFILL_API_URL}/job-order/orders`, {
+const {data: orders, pending, error} = useFetch(`${FLEXFILL_API_URL}/job-orders/orders`, {
+  headers: {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${AuthStore.accessToken}`
+  },
   immediate: true,
   transform: (data) => {
     return data.map(order => {
@@ -75,6 +81,17 @@ const addPlacementToOrder = (placement) => {
 
 
 const matches = computed(() => selectedOrder.value?.AVTRRT__Job_Application__r?.records.map(record => record.AVTRRT__Contact_Candidate__r && new Person(record.AVTRRT__Contact_Candidate__r)) || []) 
+
+watch(error, (newError) => {
+  if (newError) {
+    if (newError.status === 401) {
+      console.log('Unauthorized error:', JSON.stringify(newError))
+      return unauthorizedError(newError.data?.message)
+    } else {
+      Toaster.error(newError.message || 'An error occurred')
+    }
+  }
+}, { immediate: true })
 
 </script>
   

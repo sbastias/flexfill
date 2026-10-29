@@ -1,7 +1,7 @@
 <script setup>
 // const { accountOverlayVisible } = useUiControls();
 
-const authStore = useAuthStore();
+const { user } = useAuthStore();
 
 // const showDialog = () => {
 //   document.getElementById('account-dialog').showModal()
@@ -20,13 +20,13 @@ const authStore = useAuthStore();
 
     <button id="account-details-button">
       <div>
-        <h3>{{ authStore.fullName }}</h3>
-        <div>{{ authStore.title }} / {{ authStore.department }}</div>
-        <div>{{ authStore.company }}</div>
+        <h3>{{ user.firstName }} {{ user.lastName }}</h3>
+        <div>{{ user.title }}</div>
+        <div>{{ user.company }}</div>
       </div>
 
       <div>
-        <div :style="{ backgroundImage: `url(${authStore.logo})` }"></div>
+        <div :style="{ backgroundImage: `url(${user.logo})` }"></div>
       </div>
     </button>
 

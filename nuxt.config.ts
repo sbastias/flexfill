@@ -20,7 +20,11 @@ export default defineNuxtConfig({
       GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY || ''
     }
   },
-  modules: ['@pinia/nuxt', '@nuxt/scripts'],
+  modules: [
+    '@pinia/nuxt', 
+    '@pinia-plugin-persistedstate/nuxt',
+    '@nuxt/scripts'
+  ],
   scripts: {
     registry: {
       // Register infrastructure without loading Maps on every page.

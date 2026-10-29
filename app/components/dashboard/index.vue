@@ -3,7 +3,7 @@ const authStore = useAuthStore()
 </script>
 
 <template>
-  <div class="dashboard-container">
+  <div class="dashboard-container centered-container">
 
     <div id="dashboard">
 
@@ -35,11 +35,6 @@ const authStore = useAuthStore()
 
 
 .dashboard-container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem 0;
-
   h1 {
     margin: 2rem 0;
   }

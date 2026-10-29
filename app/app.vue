@@ -19,7 +19,11 @@ const Toast = useToaster()
 @use "@/assets/scss/theme.scss";
 @use "@/assets/scss/forms.scss";
 @use "@/assets/scss/buttons.scss";
+@use "@/assets/scss/layout.scss";
 
+:root {
+  interpolate-size: allow-keywords;
+}
 html {
   transition: background 0.3s ease;
   //font-size: 12px;

@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
   --primary-color: rgb(0, 123, 255); /* #007bff */
@@ -22,6 +22,8 @@
   --gray-700: rgb(73, 80, 87); /* #495057 */
   --gray-800: rgb(52, 58, 64); /* #343a40 */
   --gray-900: rgb(33, 37, 41); /* #212529 */
+
+  --gray-bg: rgb(240, 240, 240); /* #f8f9fa */
 
   --day-bg: rgb(224, 152, 59);
   --night-bg: rgb(90, 23, 177);

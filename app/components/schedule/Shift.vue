@@ -121,42 +121,46 @@ watch(() => data, (newVal) => {
         ]">
     </div>
 
-    <div class="shift-options" :class="{suppressed: shift.updating}" ref="shiftoptions" v-if="hovered">
+    <div class="shift-options-container" :class="{suppressed: shift.updating}" ref="shiftoptions" v-if="hovered">
 
-      <div>
-        <pre>{{ shift.sfData }}</pre>
-      </div>
+      <div class="shift-options">
 
-      <div>
-        <pre>{{ shift.lastVersion }}</pre>
-      </div>
+        <!--div>
+          <pre>{{ shift.sfData }}</pre>
+        </div>
 
-      <div>{{ unsaved }}</div>
+        <div>
+          <pre>{{ shift.lastVersion }}</pre>
+        </div>
 
-      <div class="shift-date">{{ new Date(shift.Date__c).toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: 'numeric' }) }}</div>
+        <div>{{ unsaved }}</div-->
 
-      <!--pre>{{ JSON.stringify(shift, null, 2) }}</pre-->
+        <div class="shift-date">{{ new Date(shift.Date__c).toLocaleDateString('en-CA', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'utc' }).replace(/,/g, '') }}</div>
 
-      <div class="options-area" v-show="shift.Status__c == 'Active'">
-        <select v-model="shift.Type__c" data-lpignore="true">
-          <option value="Day">Day</option>
-          <option value="Night">Night</option>
-          <option value="Custom">Custom</option>
-        </select>
-      </div>
+        <!--pre>{{ JSON.stringify(shift, null, 2) }}</pre-->
 
-      <div style="display: flex; flex-direction: column; align-items: center; gap: .3rem" v-if="shift.Id">
-        <template v-if="shift.Status__c === 'Active'">
-          <button @click="updateShift(shift)" :disabled="!unsaved">Save Changes</button>
-          <button @click="deactivateShift(shift)">Deactivate</button>
-        </template>
-        <template v-else>
-          <button @click="activateShift(shift)">Activate</button>
-        </template>
-      </div>
-      <div style="display: flex; justify-content: center;" v-if="!shift.Id">
-        <button @click="createShift(shift)">Activate</button>
-      </div>
+        <div class="options-area" v-show="shift.Status__c == 'Active'">
+          <select v-model="shift.Type__c" data-lpignore="true">
+            <option value="Day">Day</option>
+            <option value="Night">Night</option>
+            <option value="Custom">Custom</option>
+          </select>
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: center; gap: .3rem" v-if="shift.Id">
+          <template v-if="shift.Status__c === 'Active'">
+            <button @click="updateShift(shift)" :disabled="!unsaved">Save Changes</button>
+            <button @click="deactivateShift(shift)">Deactivate</button>
+          </template>
+          <template v-else>
+            <button @click="activateShift(shift)">Activate</button>
+          </template>
+        </div>
+        <div style="display: flex; justify-content: center;" v-if="!shift.Id">
+          <button @click="createShift(shift)">Activate</button>
+        </div>
+
+      </div> <!-- Close shift-options -->
       
     </div>
 
@@ -184,20 +188,40 @@ watch(() => data, (newVal) => {
 
   }
 
-  .shift-options {
+  .shift-options-container {
     position: absolute;
-    top: 61.8%; /* Restored original vertical alignment */
+    top: 90%; /* Restored original vertical alignment */
     display: block;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
 
-    background: white;
-    border-radius: .6rem;
-    #{"corner-shape"}: squircle;
-    padding: .5rem;
-    z-index: 3;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    .shift-options {
+      font-size: .75em;
+      &:before {
+        content: '';
+        display: block;
+        height: 1rem;
+        width: 1rem;
+        position: absolute;
+        top: 0;
+        left: 50%;
+        border: 1px solid #ccc;
+        border-right: none;
+        border-bottom: none;
+        background: white;
+        transform-origin: 50% 50%;
+        transform: translate(-50%, -50%) rotate(45deg);
+      }
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: .6rem;
+      #{"corner-shape"}: squircle;
+      padding: .5rem;
+      z-index: 3;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 20ch;
+    }
 
     /* DEFAULT / MOUSE LEAVE: 
        Fade out smoothly over 0.3s, hide visibility instantly (0s delay) */
@@ -208,11 +232,12 @@ watch(() => data, (newVal) => {
 
     .shift-date {
       text-transform: uppercase;
-      font-size: .7rem;
+      font-size: .8em;
       text-align: center;
       font-weight: 500;
       margin-bottom: .3rem;
       white-space: nowrap;
+      text-transform: uppercase;
     }
 
     .options-area {
@@ -237,7 +262,7 @@ watch(() => data, (newVal) => {
     }
   }
 
-  .shift-options.hovered:not(.suppressed) {
+  .shift-options-container.hovered:not(.suppressed) {
     opacity: 1;
     visibility: visible;
     
