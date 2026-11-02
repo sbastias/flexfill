@@ -11,8 +11,8 @@ const props = defineProps({
 })
 
 const weekending = new Date(props.weekending)
-
 const expanded = ref(false)
+const editingMode = ref(false)
 
 const days = computed(() => {
   const startOfWeek = new Date(weekending)
@@ -29,44 +29,49 @@ const days = computed(() => {
 const activeDay = (day, placement) => {
   return day >= new Date(placement.AVTRRT__Start_Date__c) && day <= new Date(placement.AVTRRT__End_Date__c)
 }
+
 </script>
 
 <template>
   <div class="timecard-week-container-wrapper">
-    <div class="timecard-week-container" @click="expanded = !expanded" :class="{ expanded }">
+    <div class="timecard-week-container" :class="{ expanded }">
 
-      <h4><UiHamburger :active="expanded" /> ENDING {{ new Date(weekending).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }).toUpperCase() }}</h4>
+      <h4 @click="expanded = !expanded" :class="{ expanded }">
+        <UiHamburger :active="expanded" /> ENDING {{ new Date(weekending).toLocaleDateString('en-US', { month: 'long', day: 'numeric' }).toUpperCase() }}
+      </h4>
 
       <div class="folders-wrapper">
+
         <ul class="folders-list">
+
           <li class="folder-header">
             <div>Candidate</div>
             <div>Job Title</div>
             <div>Site</div>
             
-              <div v-for="day in days" :key="day.toISOString()" class="day" :data-dow="day.toLocaleDateString('en-US', { weekday: 'short' })">
-                {{ day.toLocaleDateString('en-US', { day: 'numeric' }) }}
-              </div>
+            <div v-for="day in days" :key="day.toISOString()" class="day" :data-dow="day.toLocaleDateString('en-US', { weekday: 'short' })">
+              {{ day.toLocaleDateString('en-US', { day: 'numeric' }) }}
+            </div>
+
+            <div class="total">Total</div>
+            <div>Rating</div>
+            <div>Comments</div>
+            <div>Status</div>
+            <div>Approval</div>
+            <div>
+              <UiEditIcon size="1rem" :style="{ 'pointer-events': 'none' }" />
+            </div>
             
           </li>
-          <li v-for="folder in folders" :key="folder.Id" class="folder-container">
 
-              <div>{{ folder.Placement__r.AVTRRT__Contact_Candidate__r.Name }}</div>
-              <div>{{ folder.Placement__r.AVTRRT__Job_Title__c }}</div>
-              <div>{{ folder.Placement__r.Site__r?.Name || 'N/A' }}</div>
+          <TimecardFolderRow 
+            v-for="folder in folders" 
+            :key="folder.Id" 
+            class="folder-container" 
+            :folder="folder" 
+            :days="days"
+          />
 
-              
-                <div v-for="day in days" 
-                :key="day.toISOString()"
-                class="day"
-                :class="{ 'active-day': activeDay(day, folder.Placement__r) }">
-                
-                  {{ folder.Time_Trackings__r.records.find(tt => new Date(tt.Date__c).toDateString() === day.toDateString())?.Reported_Hours__c || 0 }}
-                
-                </div>
-              
-            
-          </li>
         </ul>
       </div>
 
@@ -74,7 +79,7 @@ const activeDay = (day, placement) => {
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
 
 .timecard-week-container-wrapper {
   background: #f9f9f9;
@@ -91,22 +96,6 @@ const activeDay = (day, placement) => {
     grid-template-rows: auto auto;
     gap:0;
     transition: grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    /* When collapsed, collapse internal vertical margins/paddings so everything scales at identical rate */
-    // &:not(.expanded) {
-    //   .folders-list {
-    //     .folder-header {
-    //       padding-top: 0;
-    //       padding-bottom: 0;
-    //     }
-    //     .folder-container {
-    //       padding-top: 0;
-    //       padding-bottom: 0;
-    //       margin-top: 0;
-    //       margin-bottom: 0;
-    //     }
-    //   }
-    // }
     
     h4 {
       display: flex;
@@ -143,27 +132,34 @@ const activeDay = (day, placement) => {
   .folders-list {
     list-style: none;
     padding: 0;
-    margin: 0;
-    
+    margin: 0; 
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-  }
 
-  .folder-header,
-  .folder-container {
-    display: grid;
-    gap: 0.5rem;
-    margin: 0;
-    font-size: .8em;
-    grid-template-columns: 2fr 3fr 1fr repeat(7, 1fr);
-    // transition: padding 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-    //             margin 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    .day {
-      text-align: center;
-      font-weight: 700;
+    > li { /* header and rows! */
+      display: grid;
+      height: 6em;
+      gap: 1rem;
+      margin: 0;
+      font-size: .8em;
+      grid-template-columns: 2.5fr 3fr 1.25fr repeat(7, .6fr) .8fr 1fr 3fr 1.5fr .8fr .4fr;
+
+      &.folder-header {
+        height: min-content;
+      }
+
+      > div:last-child {
+        justify-self: end;
+      }
+
+      > div:nth-last-child(2) {
+        justify-self: center;
+      }
     }
   }
+
+  
 
   .folder-header {
     background: var(--gray-50);
@@ -176,6 +172,9 @@ const activeDay = (day, placement) => {
       display: flex;
       align-items: center;
       justify-content: flex-start;
+    }
+    .total {
+      justify-content: center;
     }
     .day{
       flex-direction: column ;
@@ -191,21 +190,6 @@ const activeDay = (day, placement) => {
     }
 
   }
-
-
-
-  .folder-container {
-    list-style: none;
-    padding: 0;
-    margin: 0.5rem 0;
-    .day {
-      color: var(--gray-300);
-      text-align: center;
-      font-weight: 700;
-    }
-    .active-day {
-      color: var(--gray-800);
-    }
-  }
+    
 }
 </style>

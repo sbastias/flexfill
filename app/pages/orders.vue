@@ -1,8 +1,8 @@
 <script setup>
 const { FLEXFILL_API_URL } = useRuntimeConfig().public
 const Toaster = useToaster()
-const AuthStore = useAuthStore()
-const { unauthorizedError } = useFFError()
+const authStore = useAuthStore()
+const { unauthorizedError, notFoundError } = useFFError()
 
 const {activeStartDay, activeEndDay} = useCalendar()
 const { Person } = usePerson()
@@ -34,10 +34,14 @@ const unsetEditingOrder = ($event) => {
 }
 
 const {data: orders, pending, error} = useFetch(`${FLEXFILL_API_URL}/job-orders/orders`, {
+  method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${AuthStore.accessToken}`
+    'Authorization': `Bearer ${authStore.accessToken}`
   },
+  body: JSON.stringify({
+    departmentIds: authStore.departments.map(dept => dept.Id)
+  }),
   immediate: true,
   transform: (data) => {
     return data.map(order => {
@@ -87,8 +91,11 @@ watch(error, (newError) => {
     if (newError.status === 401) {
       console.log('Unauthorized error:', JSON.stringify(newError))
       return unauthorizedError(newError.data?.message)
+    } else if (newError.status === 404) {
+      console.log('Not Found error:', JSON.stringify(newError))
+      return notFoundError(newError.data?.message)
     } else {
-      Toaster.error(newError.message || 'An error occurred')
+      Toaster.activate({message: newError.message || 'An error occurred', status: 'error'})
     }
   }
 }, { immediate: true })
@@ -100,7 +107,7 @@ watch(error, (newError) => {
 
     <JobOrderForm :order="editingOrder" popover @toggle="unsetEditingOrder" />
 
-    <div class="job-orders-ui" :class="{show: selectedOrder}">
+    <div class="job-orders-ui">
 
       <div>
         <JobOrderList 
@@ -124,7 +131,7 @@ watch(error, (newError) => {
 
         <div style="height: 100%;">
           
-          <JobOrderCalendar :order="selectedOrder" @add-placement="(placement) => addPlacementToOrder(placement)" />
+          <JobOrderCalendar :error="error" :order="selectedOrder" @add-placement="(placement) => addPlacementToOrder(placement)" />
 
         </div>
 

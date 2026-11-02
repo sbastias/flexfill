@@ -13,7 +13,7 @@ definePageMeta({
 //   showPassword.value = !showPassword.value
 // }
 
-const TESTEMAIL = 'rob.kokesch@equinoxgold.com'
+const TESTEMAIL = 'craig.young@newgold.com'
 
 const otpinput = ref(null)
 const email = ref(TESTEMAIL)
@@ -100,6 +100,7 @@ const reset = () => {
   otp.value = ''
   otpSent.value = false
 }
+
 
 
 watch(otpinput, (newValue) => {

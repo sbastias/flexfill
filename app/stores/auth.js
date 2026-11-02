@@ -51,7 +51,8 @@ export const useAuthStore = defineStore('auth', {
       this.companyName = user.Account.Name
       //this.siteName = user.siteName
       this.title = user.Title
-      this.depts = user.Department_Managers__r.records.map(dm => dm.Department__r) || []
+      this.depts = user.Department_Superintendents__r?.records.map(dm => dm.Department__r) || []
+      this.crews = user.Crew_Supervisors__r?.records.map(cs => cs.Crew__r) || []
       //this.logoPath = user.logoPath
     },
     setFirstName(firstName) {

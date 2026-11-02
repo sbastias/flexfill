@@ -46,6 +46,10 @@ const props = defineProps({
     type: Object,
     required: false,
     default: () => ({})
+  },
+  error: {
+    type: Object,
+    required: false
   }
 })
 
@@ -169,9 +173,15 @@ const savePendingPlacement = () => {
         <div class="calendars-wrapper">
 
           <transition name="fade">
+            
             <div class="no-order-selected" v-if="!order">
-              Select a Job Order to manage roster.
+
+              {{ error?.statusCode == 404 ? 
+              'No current job orders found for this department.' 
+              : 'Select a Job Order to manage roster.' }}
+              
             </div>
+
           </transition>
 
           <Transition :name="transitionName">

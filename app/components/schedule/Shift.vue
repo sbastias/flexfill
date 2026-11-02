@@ -5,13 +5,15 @@ class Shift {
     this.Type__c = shiftObj.Type__c || ''
     this.Status__c = shiftObj.Status__c || 'blank'
     this.Date__c = shiftObj.Date__c || date
+    this.Client_Notes__c = shiftObj.Client_Notes__c || ''
     this.saved = false
     this.updating = false
     this.lastVersion = shiftObj && {
       Id: shiftObj.Id || null,
       Type__c: shiftObj.Type__c || '',
       Status__c: shiftObj.Status__c || 'blank',
-      Date__c: shiftObj.Date__c || date
+      Date__c: shiftObj.Date__c || date,
+      Client_Notes__c: shiftObj.Client_Notes__c || ''
     } || null
   }
 
@@ -20,7 +22,8 @@ class Shift {
       Id: this.Id,
       Type__c: this.Type__c,
       Status__c: this.Status__c,
-      Date__c: this.Date__c
+      Date__c: this.Date__c,
+      Client_Notes__c: this.Client_Notes__c
     }
   }
 
@@ -32,6 +35,7 @@ class Shift {
       this.Type__c = newVersion.Type__c || ''
       this.Status__c = newVersion.Status__c || 'blank'
       this.Date__c = newVersion.Date__c || null
+      this.Client_Notes__c = newVersion.Client_Notes__c || ''
     }
     this.saved = true
     setTimeout(() => {
@@ -46,13 +50,20 @@ class Shift {
       this.Type__c = this.lastVersion.Type__c || ''
       this.Status__c = this.lastVersion.Status__c || 'blank'
       this.Date__c = this.lastVersion.Date__c || null
+      this.Client_Notes__c = this.lastVersion.Client_Notes__c || ''
     }
+  }
+
+  get isPast () {
+    return new Date(this.Date__c) < new Date()
   }
 }
 
-//const {data} = defineProps(['data'])
-const { data } = defineProps(['data'])
-const shift = ref(null)
+
+const { date, placementId, shift: shiftProp } = defineProps(['date', 'placementId', 'shift'])
+//const shift = ref(null)
+
+const shift = ref(new Shift(shiftProp || {}, date))
 const shiftoptions = ref(null)
 const hovered = ref(false)
 
@@ -92,11 +103,11 @@ const unsaved = computed(() => shift.value && (JSON.stringify(shift.value.lastVe
 
 
 
-watch(() => data, (newVal) => {
+// watch(() => data, (newVal) => {
 
-  shift.value = new Shift(newVal.shift || {}, data.date)
+//   shift.value = new Shift(newVal.shift || {}, data.date)
 
-}, { immediate: true })
+// }, { immediate: true })
 
 </script>
 
@@ -105,14 +116,14 @@ watch(() => data, (newVal) => {
 
   <div v-if="shift" 
     class="slot-wrapper" 
-    :class="{ 'is-past': data.isPast && new Date(shift.Date__c) < new Date() }"
+    :class="{ 'is-past': shift.isPast }"
     @mouseenter="doHover"
     @mouseleave="undoHover">  
 
     <div 
       class="slot" 
       :class="[
-        shift.Type__c.toLowerCase(), 
+        (shift.Type__c || 'custom').toLowerCase(), 
         shift.Status__c.replace(/ /g, '-').toLowerCase(), 
         {
           updating: shift.updating, 
@@ -121,15 +132,19 @@ watch(() => data, (newVal) => {
         ]">
     </div>
 
-    <div class="shift-options-container" :class="{suppressed: shift.updating}" ref="shiftoptions" v-if="hovered">
+    <div 
+      class="shift-options-container" 
+      :class="{suppressed: shift.updating}"
+      ref="shiftoptions" 
+      v-if="hovered && !shift.isPast">
 
       <div class="shift-options">
 
         <!--div>
-          <pre>{{ shift.sfData }}</pre>
-        </div>
+          <pre>{{ shift }}</pre>
+        </div-->
 
-        <div>
+        <!--div>
           <pre>{{ shift.lastVersion }}</pre>
         </div>
 
@@ -145,6 +160,14 @@ watch(() => data, (newVal) => {
             <option value="Night">Night</option>
             <option value="Custom">Custom</option>
           </select>
+        
+
+          <div class="client-notes">
+            <label>Notes:</label>
+            <textarea v-model="shift.Client_Notes__c" data-lpignore="true" maxlength="255"></textarea>
+            <div>{{ shift.Client_Notes__c.length }}/255 chars.</div>
+          </div>
+
         </div>
 
         <div style="display: flex; flex-direction: column; align-items: center; gap: .3rem" v-if="shift.Id">
@@ -220,7 +243,7 @@ watch(() => data, (newVal) => {
       padding: .5rem;
       z-index: 3;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      width: 20ch;
+      width: 30ch;
     }
 
     /* DEFAULT / MOUSE LEAVE: 
@@ -246,10 +269,36 @@ watch(() => data, (newVal) => {
       align-items: center;
       gap: .3rem;
       margin: .8rem 0;
+
+      .client-notes {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        
+        textarea {
+          width: 100%;
+          aspect-ratio: 1.618 / .618;
+          min-width: 0;
+          resize: none;
+          font-family: inherit;
+          font-size: 1em;
+          padding: .4em;
+          + div {
+            align-self: flex-end;
+            font-size: .7em;
+            color: #666;
+            margin-top: .2rem;
+            text-align: right;
+          }
+        }
+        
+      }
     }
 
     button {
       white-space: nowrap;
+      border-radius: .5em;
     }
   }
 
@@ -310,6 +359,11 @@ watch(() => data, (newVal) => {
         background: var(--gray-800);
         background: var(--night-bg);
         &:before {content: 'NS'}
+      }
+      &.custom{
+        background: var(--gray-800);
+        background: var(--custom-bg);
+        &:before {content: 'C';}
       }
     }
 

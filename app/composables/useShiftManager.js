@@ -3,6 +3,7 @@
 export const useShiftManager = () => {
 
   const Toaster = useToaster()
+  const authStore = useAuthStore()
 
   const { FLEXFILL_API_URL } = useRuntimeConfig().public
 
@@ -18,7 +19,8 @@ export const useShiftManager = () => {
       method: 'POST',
       body: shiftToUpdate.sfData,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authStore.accessToken}`
       }
     })
     .then((data) => {
@@ -48,7 +50,8 @@ export const useShiftManager = () => {
         method: 'POST',
         body: shiftToActivate.sfData,
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authStore.accessToken}`
         }
       })
       .then(() => {
@@ -70,7 +73,8 @@ export const useShiftManager = () => {
       method: 'POST',
       body: shiftToDeactivate.sfData,
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authStore.accessToken}`
       }
     })
     .then(() => {

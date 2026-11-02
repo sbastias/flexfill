@@ -2,6 +2,7 @@
 const {FLEXFILL_API_URL} = useRuntimeConfig().public
 const Toaster = useToaster()
 const mainStore = useMainStore()
+const authStore = useAuthStore()
 const { controller } = useController()
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
@@ -74,10 +75,13 @@ class Placement {
       slots: this.slots
     }
   }
+  isOutOfRange(date) {
+    const d = new Date(date)
+    return d < this.startDate || d > this.endDate
+  }
 }
 
-const placements = computed(() => data.value?.placementRecords?.map(p => new Placement(p)) || [])
-const departments = computed(() => data.value?.departments || [])
+const placements = computed(() => data.value?.schedules?.map(s => new Placement({...s.Placement__r, shifts: s.Shifts__r.records || []})) || [])
 const editingPlacement = ref(null)
 const drawerState = ref('closed')
 const contactId = ref(null)
@@ -153,17 +157,20 @@ const contactId = ref(null)
       editingPlacement.value = null
     }, 1000)
 
-  }
+  } 
 
-  const {data, execute, pending, status} = await useFetch(() => `${FLEXFILL_API_URL}/scheduling/placements`, {
-    watch: [today, rangeEnd, contactId],
-    body: computed(() => ({ from: today.value, to: rangeEnd.value, contactId: contactId.value })),
+  const {data, execute, pending, status} = await useFetch(() => `${FLEXFILL_API_URL}/scheduling/schedules`, {
+    watch: [today, rangeEnd],
+    body: computed(() => ({ from: today.value, to: rangeEnd.value, departmentIds: authStore.departments.map(d => d.Id) })),
     method: 'POST',
     deep: true,
     lazy: true,
     immediate: true,
     signal: controller.value.signal, // Reactive getter for signal
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 
+      'Content-Type': 'application/json', 
+      'Authorization': `Bearer ${authStore.accessToken}`
+    }
   })
       
     
@@ -186,7 +193,7 @@ onMounted(() => {
         <ScheduleDrawerPlacement 
           v-if="editingPlacement"
           :placement="editingPlacement" 
-          :departments="departments" 
+          :departments="authStore.departments" 
           :save="saveEdit" 
           :cancel="cancelEdit" 
         />
@@ -231,14 +238,19 @@ onMounted(() => {
                         <span class="job-title">{{placement.AVTRRT__Job_Title__c}}</span>
                         <!--span class="start-end">{{placement.AVTRRT__Start_Date__c}} - {{placement.AVTRRT__End_Date__c}}</span-->
                         <span class="candidate-name">{{placement.Candidate_Full_Name__c}}</span>
+
+                        <!--pre>
+                          {{ JSON.stringify(placement.shifts, null, 2) }}
+                        </pre-->
+
                       </div>
                       <div class="edit-icon-container">
                         <UiEditIcon :active="editingPlacement && editingPlacement.Id === placement.Id" />
                       </div>
                     </td>
-                    <td class="day-slot-cell" v-for="(day) in loadedDates" :key="day" :class="{'first-day-of-month': day.substring(8,10) === '01', 'today': day === today, 'is-past': new Date(day) < new Date()}">
+                    <td class="day-slot-cell" v-for="(day) in loadedDates" :key="day" :class="{'first-day-of-month': day.substring(8,10) === '01', 'today': day === today, 'is-past': new Date(day) < new Date(), 'out-of-range': placement.isOutOfRange(day) }">
                       <ClientOnly>
-                        <ScheduleShift :data="{placementId: placement.Id, shift: placement.shifts?.find(s => s.Date__c === day) || null, isPast: new Date(day) < new Date(), date: day}" />
+                        <ScheduleShift v-if="!placement.isOutOfRange(day)" :placement-id="placement.Id" :shift="placement.shifts?.find(s => s.Date__c === day) || null" :date="day" />
                       </ClientOnly>
                     </td>
                   </tr>

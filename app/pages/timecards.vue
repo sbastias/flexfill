@@ -17,7 +17,10 @@ const {data: folders, pending, error} = useFetch(`${FLEXFILL_API_URL}/timecards`
 
 const weekendings = computed(() => {
   if (!folders.value) return {}
-  return folders.value.filter(folder => activeDepartmentIds.value.includes(folder.Placement__r.Department_Temp__c)).reduce((acc, folder) => {
+  return folders.value
+    .filter(folder => activeDepartmentIds.value.includes(folder.Placement__r.Department_Temp__c))
+    .sort((a, b) => a.Placement__r.AVTRRT__Contact_Candidate__r.Name.localeCompare(b.Placement__r.AVTRRT__Contact_Candidate__r.Name))
+    .reduce((acc, folder) => {
     if (!acc[folder.Weekending__c]) {
       acc[folder.Weekending__c] = []
     }
@@ -31,7 +34,7 @@ const weekendings = computed(() => {
 <template>
   <main class="timecards page-container">
 
-    <div class="centered-container">
+    <div class="timecards-ui-container">
 
       <div class="default-container departments-selection" v-if="authStore.departments.length">
         Departments:
@@ -72,6 +75,18 @@ const weekendings = computed(() => {
   gap: 1rem;
   background: var(--gray-bg);
   height: 100%;
+
+  .timecards-ui-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    max-width: 1800px;
+    margin: 0 auto;
+    position: relative;
+  }
 
   .departments-selection {
     display: flex;

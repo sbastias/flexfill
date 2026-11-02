@@ -23,11 +23,13 @@ const emits = defineEmits(['select','edit'])
 </script>
 <template>
   <div class="job-order-list-container">
+
     <div v-if="pending">
       <UiLoader />
     </div>
     <div v-else-if="error">
-      <p>Error loading job orders.</p>
+      <p v-if="error.statusCode == 404">No job orders found.</p>
+      <p v-else>Error loading job orders.</p>
     </div>
     
     <ul class="job-order-list" v-else>
@@ -48,6 +50,10 @@ const emits = defineEmits(['select','edit'])
         
       </li>
     </ul>
+
+    <div>
+      <button>Add New Order</button>
+    </div>
   
   </div>
 </template>
@@ -58,8 +64,8 @@ const emits = defineEmits(['select','edit'])
   padding: 0;
   margin: 0;
   height: 100%;
-  & * {
-    //border: 1px solid #ccc; 
+  > div {
+    padding: 1rem;
   }
   .job-list-header {
     font-size: .6rem;

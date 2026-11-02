@@ -1,15 +1,28 @@
-label {
+label:has(+ *) {
   display: block;
   margin-bottom: 0.5rem;
 }
+
+label:has(> input[type="checkbox"]) {
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+}
+
+
+
 input, select {
-  padding: 0.3rem 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: .4rem;
-  background: #fff;
-  font-size: inherit;
-  width: 100%;
-  font-family: inherit;
+  
+
+  &:not([type="checkbox"], [type="radio"]) {
+    width: 100%;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: .4rem;
+    background: #fff;
+    font-size: inherit;
+    font-family: inherit;
+  }
 }
 
 option {

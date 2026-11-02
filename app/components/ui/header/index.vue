@@ -21,6 +21,10 @@ header {
   z-index: 10;
   width: 100%;
 
+  &:hover {
+    z-index: 9999;
+  }
+
   .logo {
     font-size: 1rem;
     font-weight: bold;
